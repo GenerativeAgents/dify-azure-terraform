@@ -1,6 +1,9 @@
 variable "subscription-id" {
   type = string
-  default = "25cc9009-2580-4987-936c-95aaab093023"
+}
+
+variable "resource_group" {
+  type = string
 }
 
 #virtual network variables
@@ -13,7 +16,6 @@ variable "ip-prefix" {
   type = string
   default = "10.99"
 }
-#end virtual network variables
 
 variable "storage-account" {
   type = string
@@ -22,7 +24,7 @@ variable "storage-account" {
 
 variable "storage-account-container" {
   type = string
-  default = "dfy" 
+  default = "dfy"
 }
 
 variable "redis" {
@@ -57,7 +59,7 @@ variable "aca-loga" {
 
 variable "isProvidedCert" {
   type = bool
-  default = true
+  default = false
 }
 
 variable "aca-cert-path" {
@@ -77,12 +79,12 @@ variable "aca-dify-customer-domain" {
 
 variable "aca-app-min-count" {
   type = number
-  default = 0
+  default = 1
 }
 
 variable "is_aca_enabled" {
   type = bool
-  default = false
+  default = true
 }
 
 variable "dify-api-image" {
@@ -101,4 +103,58 @@ variable "dify-web-image" {
   type = string
   # default = "langgenius/dify-web:0.6.11"
   default = "langgenius/dify-web:0.7.1"
+}
+
+variable "nginx-cpu-size" {
+  type = string
+  default = "1.0"
+}
+
+variable "nginx-memory-size" {
+  type = string
+  default = "2Gi"
+}
+
+variable "ssrfproxy-cpu-size" {
+  type = string
+  default = "1.0"
+}
+
+variable "ssrfproxy-memory-size" {
+  type = string
+  default = "2Gi"
+}
+
+variable "worker-cpu-size" {
+  type = string
+  default = "2"
+}
+
+variable "worker-memory-size" {
+  type = string
+  default = "4Gi"
+}
+
+variable "api-cpu-size" {
+  type = string
+  default = "4"
+}
+
+variable "api-memory-size" {
+  type = string
+  default = "8Gi"
+}
+
+variable "postgres-sku-name" {
+  type = string
+  default = "B_Standard_B2ms"
+}
+
+variable "web_ip_security_restrictions" {
+  type = list(object({
+    description = string
+    name = string
+    ip_address_range = string
+  }))
+  description = "Dify Web IP Security Restrictions"
 }

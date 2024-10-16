@@ -34,5 +34,3 @@ module "ssrf_proxy_fileshare" {
   local_mount_dir      = "mountfiles/ssrfproxy"
   share_name           = "ssrfproxy"
 }
-
-

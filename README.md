@@ -1,6 +1,40 @@
 ## dify-azure-terraform
 Deploy [langgenius/dify](https://github.com/langgenius/dify), an LLM based chat bot app on Azure with terraform.
 
+## 使い方
+
+### 事前準備
+
+1. `terraform.tfvars` ファイルを作成し、以下の内容を記述します。
+- `subscription-id` : AzureサブスクリプションID
+- `resource_group` : 作成するリソースグループ名（あらかじめリソースグループは作成ください）
+- `web_ip_security_restrictions` : WebアプリケーションのIP制限設定（複数指定可能）
+
+```
+subscription-id = "xxxx"
+resource_group = "xxxxxxx"
+web_ip_security_restrictions = [
+  {
+    name = "home1"
+    description = "Home IP1"
+    ip_address_range = "12.12.12.12/32"
+  },
+  {
+    name = "home2"
+    description = "Home IP2"
+    ip_address_range = "12.12.12.13/32"
+  }
+]
+```
+
+### Terraformコマンド
+
+```
+terraform init
+terraform plan
+terraform apply
+```
+
 ### Topology
 Front-end access:
 - nginx -> Azure Container Apps (Serverless)
@@ -20,13 +54,6 @@ Before you provision Dify, please check and set the variables in var.tf file.
 ### Terraform Variables Documentation
 
 This document provides detailed descriptions of the variables used in the Terraform configuration for setting up the Dify environment.
-
-### Kick Start
-```bash
-terraform init
-terraform plan
-terraform apply --auto-approve
-```
 
 #### Subscription ID
 

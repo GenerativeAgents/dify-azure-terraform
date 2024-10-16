@@ -1,0 +1,9 @@
+subscription-id = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+resource_group = "xxxxxx"
+web_ip_security_restrictions = [
+  {
+    name = "homeTest"
+    description = "Home IP Test"
+    ip_address_range = "11.12.13.14/32"
+  },
+]

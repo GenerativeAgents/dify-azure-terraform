@@ -13,28 +13,22 @@ resource "azurerm_container_app_environment" "dify-aca-env" {
   resource_group_name        = azurerm_resource_group.rg.name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.aca-loga.id
   infrastructure_subnet_id = azurerm_subnet.acasubnet.id
+  infrastructure_resource_group_name = "ME_${var.aca-env}_${azurerm_resource_group.rg.name}_${azurerm_resource_group.rg.location}"
   workload_profile  {
     name = "Consumption"
     workload_profile_type = "Consumption"
   }
 
-  depends_on = [ 
-    # azurerm_redis_cache.redis[0],
+  depends_on = [
     azurerm_postgresql_flexible_server.postgres
-   ]
-  
-  # dynamic "depends_on" {
-  #   for_each = var.is_aca_enabled ? [azurerm_redis_cache.redis[0]] : []
-  #   content {}
-  # }
-  
+  ]
+
 }
 
 resource "azurerm_container_app_environment_storage" "nginxfileshare" {
   name                         = "nginxshare"
   container_app_environment_id = azurerm_container_app_environment.dify-aca-env.id
   account_name                 = azurerm_storage_account.acafileshare.name
-  # share_name = 
   share_name                   = module.nginx_fileshare.share_name
   access_key                   = azurerm_storage_account.acafileshare.primary_access_key
   access_mode                  = "ReadWrite"
@@ -64,9 +58,9 @@ resource "azurerm_container_app" "nginx" {
     container {
       name   = "nginx"
       image  = "nginx:latest"
-      cpu    = 0.5
-      memory = "1Gi"
-      volume_mounts { 
+      cpu    = var.nginx-cpu-size
+      memory = var.nginx-memory-size
+      volume_mounts {
         name = "nginxconf"
         path = "/etc/nginx"
       }
@@ -82,7 +76,6 @@ resource "azurerm_container_app" "nginx" {
     # exposed_port = 443
     external_enabled = true
     traffic_weight {
-      # weight = 100
       percentage = 100
       latest_revision = true
     }
@@ -95,6 +88,16 @@ resource "azurerm_container_app" "nginx" {
         certificate_id = azurerm_container_app_environment_certificate.difycerts[0].id
       }
     }
+
+    dynamic "ip_security_restriction" {
+      for_each = var.web_ip_security_restrictions
+      content {
+        action           = "Allow"
+        name             = ip_security_restriction.value.name
+        ip_address_range = ip_security_restriction.value.ip_address_range
+        description      = ip_security_restriction.value.description
+      }
+    }
   }
 }
 
@@ -102,7 +105,7 @@ resource "azurerm_container_app_environment_storage" "ssrfproxyfileshare" {
   name                         = "ssrfproxyfileshare"
   container_app_environment_id = azurerm_container_app_environment.dify-aca-env.id
   account_name                 = azurerm_storage_account.acafileshare.name
-  # share_name = 
+  # share_name =
   share_name                   = module.ssrf_proxy_fileshare.share_name
   access_key                   = azurerm_storage_account.acafileshare.primary_access_key
   access_mode                  = "ReadWrite"
@@ -124,9 +127,9 @@ resource "azurerm_container_app" "ssrfproxy" {
     container {
       name   = "ssrfproxy"
       image  = "ubuntu/squid:latest"
-      cpu    = 0.5
-      memory = "1Gi"
-      volume_mounts { 
+      cpu    = var.ssrfproxy-cpu-size
+      memory =  var.ssrfproxy-memory-size
+      volume_mounts {
         name = "ssrfproxy"
         path = "/etc/squid"
       }
@@ -139,10 +142,8 @@ resource "azurerm_container_app" "ssrfproxy" {
   }
   ingress {
     target_port = 3128
-    # exposed_port = 3128
     external_enabled = false
     traffic_weight {
-      # weight = 100
       percentage = 100
       latest_revision = true
     }
@@ -155,7 +156,7 @@ resource "azurerm_container_app_environment_storage" "sandboxfileshare" {
   name                         = "sandbox"
   container_app_environment_id = azurerm_container_app_environment.dify-aca-env.id
   account_name                 = azurerm_storage_account.acafileshare.name
-  # share_name = 
+  # share_name =
   share_name                   = module.sandbox_fileshare.share_name
   access_key                   = azurerm_storage_account.acafileshare.primary_access_key
   access_mode                  = "ReadWrite"
@@ -209,10 +210,10 @@ resource "azurerm_container_app" "sandbox" {
       }
 
 
-      volume_mounts { 
+      volume_mounts {
         name = "sandbox"
         path = "/dependencies"
-        }
+      }
     }
     volume {
       name = "sandbox"
@@ -250,8 +251,8 @@ resource "azurerm_container_app" "worker" {
     container {
       name   = "langgenius"
       image  = var.dify-api-image
-      cpu    = 2
-      memory = "4Gi"
+      cpu    = var.worker-cpu-size
+      memory = var.worker-memory-size
       env {
         name  = "MODE"
         value = "worker"
@@ -357,7 +358,7 @@ resource "azurerm_container_app" "worker" {
 
       env {
         name  = "PGVECTOR_PASSWORD"
-        value = azurerm_postgresql_flexible_server.postgres.administrator_password 
+        value = azurerm_postgresql_flexible_server.postgres.administrator_password
       }
 
       env {
@@ -389,8 +390,8 @@ resource "azurerm_container_app" "api" {
     container {
       name   = "langgenius"
       image  = var.dify-api-image
-      cpu    = 2
-      memory = "4Gi"
+      cpu    = var.api-cpu-size
+      memory = var.api-memory-size
       env {
         name  = "MODE"
         value = "api"
@@ -559,7 +560,7 @@ resource "azurerm_container_app" "api" {
 
       env {
         name  = "PGVECTOR_PASSWORD"
-        value = azurerm_postgresql_flexible_server.postgres.administrator_password 
+        value = azurerm_postgresql_flexible_server.postgres.administrator_password
       }
 
       env {
@@ -574,7 +575,7 @@ resource "azurerm_container_app" "api" {
 
       env {
         name  = "CODE_EXECUTION_ENDPOINT"
-        value = "http://sandbox:8194" 
+        value = "http://sandbox:8194"
       }
 
       env {
@@ -612,17 +613,6 @@ resource "azurerm_container_app" "api" {
         value = "1000"
       }
 
-      # comment the variables for workaround issue #https://github.com/langgenius/dify/issues/6244
-      # env {
-      #   name  = "SSRF_PROXY_HTTP_URL"
-      #   value = "http://ssrfproxy:3128"
-      # }
-
-      # env {
-      #   name  = "SSRF_PROXY_HTTPS_URL"
-      #   value = "http://ssrfproxy:3128"
-      # }
-
       env {
         name  = "INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH"
         value = "1000"
@@ -632,16 +622,16 @@ resource "azurerm_container_app" "api" {
   }
 
   ingress {
-      target_port = 5001
-      exposed_port = 5001
-      external_enabled = false
-      traffic_weight {
-        # weight = 100
-        percentage = 100
-        latest_revision = true
-      }
-      transport = "tcp"
+    target_port = 5001
+    exposed_port = 5001
+    external_enabled = false
+    traffic_weight {
+      # weight = 100
+      percentage = 100
+      latest_revision = true
     }
+    transport = "tcp"
+  }
 }
 
 resource "azurerm_container_app" "web" {
@@ -662,7 +652,7 @@ resource "azurerm_container_app" "web" {
       image  = var.dify-web-image
       cpu    = 1
       memory = "2Gi"
-       env {
+      env {
         name  = "CONSOLE_API_URL"
         value = ""
       }
@@ -680,18 +670,13 @@ resource "azurerm_container_app" "web" {
   }
 
   ingress {
-      target_port = 3000
-      exposed_port = 3000
-      external_enabled = false
-      traffic_weight {
-        # weight = 100
-        percentage = 100
-        latest_revision = true
-      }
-      transport = "tcp"
+    target_port = 3000
+    exposed_port = 3000
+    external_enabled = false
+    traffic_weight {
+      percentage = 100
+      latest_revision = true
     }
-}
-
-output "dify-app-url" {
-  value = azurerm_container_app.nginx.latest_revision_fqdn
+    transport = "tcp"
+  }
 }
