@@ -18,16 +18,16 @@ resource "azurerm_container_app_environment" "dify-aca-env" {
     workload_profile_type = "Consumption"
   }
 
-  depends_on = [ 
+  depends_on = [
     # azurerm_redis_cache.redis[0],
     azurerm_postgresql_flexible_server.postgres
-   ]
-  
+  ]
+
   # dynamic "depends_on" {
   #   for_each = var.is_aca_enabled ? [azurerm_redis_cache.redis[0]] : []
   #   content {}
   # }
-  
+
 }
 
 resource "azurerm_container_app_environment_storage" "nginxfileshare" {
@@ -66,7 +66,7 @@ resource "azurerm_container_app" "nginx" {
       image  = "nginx:latest"
       cpu    = 0.5
       memory = "1Gi"
-      volume_mounts { 
+      volume_mounts {
         name = "nginxconf"
         path = "/etc/nginx"
       }
@@ -126,7 +126,7 @@ resource "azurerm_container_app" "ssrfproxy" {
       image  = "ubuntu/squid:latest"
       cpu    = 0.5
       memory = "1Gi"
-      volume_mounts { 
+      volume_mounts {
         name = "ssrfproxy"
         path = "/etc/squid"
       }
@@ -209,10 +209,10 @@ resource "azurerm_container_app" "sandbox" {
       }
 
 
-      volume_mounts { 
+      volume_mounts {
         name = "sandbox"
         path = "/dependencies"
-        }
+      }
     }
     volume {
       name = "sandbox"
@@ -357,7 +357,7 @@ resource "azurerm_container_app" "worker" {
 
       env {
         name  = "PGVECTOR_PASSWORD"
-        value = azurerm_postgresql_flexible_server.postgres.administrator_password 
+        value = azurerm_postgresql_flexible_server.postgres.administrator_password
       }
 
       env {
@@ -559,7 +559,7 @@ resource "azurerm_container_app" "api" {
 
       env {
         name  = "PGVECTOR_PASSWORD"
-        value = azurerm_postgresql_flexible_server.postgres.administrator_password 
+        value = azurerm_postgresql_flexible_server.postgres.administrator_password
       }
 
       env {
@@ -574,7 +574,7 @@ resource "azurerm_container_app" "api" {
 
       env {
         name  = "CODE_EXECUTION_ENDPOINT"
-        value = "http://sandbox:8194" 
+        value = "http://sandbox:8194"
       }
 
       env {
@@ -632,16 +632,16 @@ resource "azurerm_container_app" "api" {
   }
 
   ingress {
-      target_port = 5001
-      exposed_port = 5001
-      external_enabled = false
-      traffic_weight {
-        # weight = 100
-        percentage = 100
-        latest_revision = true
-      }
-      transport = "tcp"
+    target_port = 5001
+    exposed_port = 5001
+    external_enabled = false
+    traffic_weight {
+      # weight = 100
+      percentage = 100
+      latest_revision = true
     }
+    transport = "tcp"
+  }
 }
 
 resource "azurerm_container_app" "web" {
@@ -662,7 +662,7 @@ resource "azurerm_container_app" "web" {
       image  = var.dify-web-image
       cpu    = 1
       memory = "2Gi"
-       env {
+      env {
         name  = "CONSOLE_API_URL"
         value = ""
       }
@@ -680,16 +680,16 @@ resource "azurerm_container_app" "web" {
   }
 
   ingress {
-      target_port = 3000
-      exposed_port = 3000
-      external_enabled = false
-      traffic_weight {
-        # weight = 100
-        percentage = 100
-        latest_revision = true
-      }
-      transport = "tcp"
+    target_port = 3000
+    exposed_port = 3000
+    external_enabled = false
+    traffic_weight {
+      # weight = 100
+      percentage = 100
+      latest_revision = true
     }
+    transport = "tcp"
+  }
 }
 
 output "dify-app-url" {

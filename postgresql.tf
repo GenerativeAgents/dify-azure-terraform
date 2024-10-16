@@ -35,7 +35,7 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   storage_mb   = 32768
   storage_tier = "P30"
 
-  sku_name   = "B_Standard_B1ms"
+  sku_name   = var.postgres-sku-name
   # depends_on = [azurerm_private_dns_zone_virtual_network_link.postgres]
 }
 
@@ -55,9 +55,9 @@ resource "azurerm_postgresql_flexible_server_database" "pgvector" {
   charset   = "utf8"
 
   # prevent the possibility of accidental data loss
-#   lifecycle {
-#     prevent_destroy = true
-#   }
+  #   lifecycle {
+  #     prevent_destroy = true
+  #   }
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "extension" {

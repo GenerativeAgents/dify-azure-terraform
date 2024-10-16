@@ -18,7 +18,7 @@ resource "azurerm_redis_cache" "redis" {
 
   public_network_access_enabled = false
   redis_version       = "6"
-  
+
   # subnet_id           = azurerm_subnet.redissubnet.id
   # zones               = [ "1" ]
 
@@ -60,15 +60,3 @@ resource "azurerm_private_dns_zone_virtual_network_link" "redis-vnet" {
   private_dns_zone_name = azurerm_private_dns_zone.redis.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
 }
-
-output "redis_cache_hostname" {
-  # value = azurerm_redis_cache.redis[0].hostname
-  value = var.is_aca_enabled ? azurerm_redis_cache.redis[0].hostname : ""
-}
-
-output "redis_cache_key" {
-  # value = azurerm_redis_cache.redis[0].primary_access_key
-  value = var.is_aca_enabled ? azurerm_redis_cache.redis[0].primary_access_key : ""
-  sensitive = true
-}
-
