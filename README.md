@@ -10,7 +10,7 @@ Deploy [langgenius/dify](https://github.com/langgenius/dify), an LLM based chat 
 - `resource_group` : 作成するリソースグループ名（あらかじめリソースグループは作成ください）
 - `web_ip_security_restrictions` : WebアプリケーションのIP制限設定（複数指定可能）
 
-```
+```bash
 subscription-id = "xxxx"
 resource_group = "xxxxxxx"
 web_ip_security_restrictions = [
@@ -27,10 +27,26 @@ web_ip_security_restrictions = [
 ]
 ```
 
+2. Azure CLIでログインします。
+
+```bash
+az login
+```
+
+3. Azure Blob Storageを作成し、Terraformのstateファイルを保存するためのコンテナを作成します。
+
+```bash
+sh scripts/create_backend.sh <リソースグループ名> <ストレージアカウント名>
+```
+
 ### Terraformコマンド
 
 ```
-terraform init
+terraform init \
+  -backend-config="resource_group_name=<リソースグループ名>" \
+  -backend-config="storage_account_name=<ストレージアカウント名>" \
+  -backend-config="container_name=tfstate" \
+  -backend-config="key=terraform.tfstate"
 terraform plan
 terraform apply
 ```
