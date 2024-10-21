@@ -9,6 +9,10 @@ terraform {
       version = "~>3.0"
     }
   }
+  backend "azurerm" {
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+  }
 }
 
 # Configure the Microsoft Azure Provider
