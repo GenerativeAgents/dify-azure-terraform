@@ -2,7 +2,16 @@ variable "subscription-id" {
   type = string
 }
 
-variable "resource_group" {
+variable "resource_group_prefix" {
+  type = string
+}
+
+variable "company_name" {
+  type = string
+  nullable = true
+}
+
+variable "env" {
   type = string
 }
 
@@ -42,11 +51,6 @@ variable "pgsql-user" {
   default = "user"
 }
 
-variable "pgsql-password" {
-  type = string
-  default = "#QWEASDasdqwe"
-}
-
 variable "aca-env" {
   type = string
   default = "dify-aca-env"
@@ -65,11 +69,6 @@ variable "isProvidedCert" {
 variable "aca-cert-path" {
   type = string
   default = "./certs/difycert.pfx"
-}
-
-variable "aca-cert-password" {
-  type = string
-  default = "password"
 }
 
 variable "aca-dify-customer-domain" {

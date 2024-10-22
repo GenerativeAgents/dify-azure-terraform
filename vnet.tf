@@ -1,7 +1,10 @@
-
+locals {
+  # Resource Group Name例: rg-ga-dify-dev
+  resouce_group_name = "${var.resource_group_prefix}-${var.company_name != "" ? var.company_name : ""}${var.company_name != "" ? "-": ""}${var.env}"
+}
 
 resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group
+  name     = local.resouce_group_name
   location = var.region
 }
 

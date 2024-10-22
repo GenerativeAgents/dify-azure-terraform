@@ -1,5 +1,7 @@
 subscription-id = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-resource_group = "xxxxxx"
+env="dev"
+resource_group_prefix = "ga-dify"
+company_name="generativeagents"
 web_ip_security_restrictions = [
   {
     name = "homeTest"
