@@ -1,7 +1,7 @@
-# resource "azurerm_resource_group" "postgres" {
-#   name     = "rg-${var.region}-postgres"
-#   location = var.region
-# }
+resource "random_password" "postgres_password" {
+  length  = 16
+  special = true
+}
 
 resource "random_id" "rg_name" {
   byte_length = 2
@@ -29,7 +29,7 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   private_dns_zone_id           = azurerm_private_dns_zone.postgres.id
   public_network_access_enabled = false
   administrator_login           = var.pgsql-user
-  administrator_password        = "#QWEASDasdqwe"
+  administrator_password        = random_password.postgres_password.result
   zone                          = "1"
 
   storage_mb   = 32768
@@ -53,11 +53,6 @@ resource "azurerm_postgresql_flexible_server_database" "pgvector" {
   server_id = azurerm_postgresql_flexible_server.postgres.id
   collation = "en_US.utf8"
   charset   = "utf8"
-
-  # prevent the possibility of accidental data loss
-  #   lifecycle {
-  #     prevent_destroy = true
-  #   }
 }
 
 resource "azurerm_postgresql_flexible_server_configuration" "extension" {

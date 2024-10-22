@@ -1,3 +1,18 @@
+resource "random_password" "cert_password" {
+  length  = 16
+  special = true
+}
+
+resource "random_password" "api_key" {
+  length  = 16
+  special = true
+}
+
+resource "random_password" "secret_key" {
+  length  = 45
+  special = true
+}
+
 resource "azurerm_log_analytics_workspace" "aca-loga" {
   name                = var.aca-loga
   location            = azurerm_resource_group.rg.location
@@ -5,7 +20,6 @@ resource "azurerm_log_analytics_workspace" "aca-loga" {
   sku                 = "PerGB2018"
   retention_in_days   = 30
 }
-
 
 resource "azurerm_container_app_environment" "dify-aca-env" {
   name                       = var.aca-env
@@ -39,7 +53,7 @@ resource "azurerm_container_app_environment_certificate" "difycerts" {
   name                         = "difycerts"
   container_app_environment_id = azurerm_container_app_environment.dify-aca-env.id
   certificate_blob_base64 = filebase64(var.aca-cert-path)
-  certificate_password = var.aca-cert-password
+  certificate_password = random_password.cert_password.result
 }
 
 resource "azurerm_container_app" "nginx" {
@@ -182,7 +196,7 @@ resource "azurerm_container_app" "sandbox" {
       memory = "1Gi"
       env {
         name  = "API_KEY"
-        value = "dify-sandbox"
+        value = random_password.api_key.result
       }
       env {
         name  = "GIN_MODE"
@@ -263,7 +277,7 @@ resource "azurerm_container_app" "worker" {
       }
       env {
         name  = "SECRET_KEY"
-        value = "sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U"
+        value = "sk-${random_password.secret_key.result}"
       }
       env {
         name  = "DB_USERNAME"
@@ -288,7 +302,6 @@ resource "azurerm_container_app" "worker" {
       }
       env {
         name  = "REDIS_HOST"
-        # value = azurerm_redis_cache.redis[0].hostname
         value = length(azurerm_redis_cache.redis) > 0 ? azurerm_redis_cache.redis[0].hostname : ""
       }
       env {
@@ -297,7 +310,6 @@ resource "azurerm_container_app" "worker" {
       }
       env {
         name  = "REDIS_PASSWORD"
-        # value = azurerm_redis_cache.redis[0].primary_access_key
         value  = length(azurerm_redis_cache.redis) > 0 ? azurerm_redis_cache.redis[0].primary_access_key : ""
       }
 
@@ -313,7 +325,6 @@ resource "azurerm_container_app" "worker" {
 
       env {
         name  = "CELERY_BROKER_URL"
-        # value = "redis://:${azurerm_redis_cache.redis[0].primary_access_key}@${azurerm_redis_cache.redis[0].hostname}:6379/1"
         value = length(azurerm_redis_cache.redis) > 0 ? "redis://:${azurerm_redis_cache.redis[0].primary_access_key}@${azurerm_redis_cache.redis[0].hostname}:6379/1" : ""
       }
 
@@ -402,7 +413,7 @@ resource "azurerm_container_app" "api" {
       }
       env {
         name  = "SECRET_KEY"
-        value = "sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U"
+        value = "sk-${random_password.secret_key.result}"
       }
 
       env {
