@@ -1,4 +1,4 @@
-resource "azurerm_public_ip" "backup_vm" {
+resource "azurerm_public_ip" "postgre_backup_vm" {
   name                = "postgre-backup-vm-pubic-ip"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -6,7 +6,7 @@ resource "azurerm_public_ip" "backup_vm" {
   sku                 = "Basic"
 }
 
-resource "azurerm_network_interface" "backup_vm" {
+resource "azurerm_network_interface" "postgre_backup_vm" {
   name                = "postgre-backup-vm-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -15,11 +15,11 @@ resource "azurerm_network_interface" "backup_vm" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.postgressubnet_public.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.backup_vm.id
+    public_ip_address_id          = azurerm_public_ip.postgre_backup_vm.id
   }
 }
 
-resource "azurerm_linux_virtual_machine" "backup_vm" {
+resource "azurerm_linux_virtual_machine" "postgre_backup_vm" {
   name                = "postgre-backup-vm"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -27,7 +27,7 @@ resource "azurerm_linux_virtual_machine" "backup_vm" {
   admin_username      = "azureuser"
 
   network_interface_ids = [
-    azurerm_network_interface.backup_vm.id,
+    azurerm_network_interface.postgre_backup_vm.id,
   ]
 
   admin_ssh_key {
@@ -65,14 +65,14 @@ resource "azurerm_linux_virtual_machine" "backup_vm" {
 
 resource "azurerm_virtual_machine_extension" "aad_ssh_login" {
   name                       = "AADSSHLoginForLinux"
-  virtual_machine_id         = azurerm_linux_virtual_machine.backup_vm.id
+  virtual_machine_id         = azurerm_linux_virtual_machine.postgre_backup_vm.id
   publisher                  = "Microsoft.Azure.ActiveDirectory"
   type                       = "AADSSHLoginForLinux"
   type_handler_version       = "1.0"
   auto_upgrade_minor_version = true
 }
 
-resource "azurerm_network_security_group" "backup_vm_nsg" {
+resource "azurerm_network_security_group" "postgre_backup_vm_nsg" {
   name                = "postgre-backup-vm-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -90,7 +90,7 @@ resource "azurerm_network_security_group" "backup_vm_nsg" {
   }
 }
 
-resource "azurerm_network_interface_security_group_association" "backup_vm" {
-  network_interface_id      = azurerm_network_interface.backup_vm.id
-  network_security_group_id = azurerm_network_security_group.backup_vm_nsg.id
+resource "azurerm_network_interface_security_group_association" "postgre_backup_vm" {
+  network_interface_id      = azurerm_network_interface.postgre_backup_vm.id
+  network_security_group_id = azurerm_network_security_group.postgre_backup_vm_nsg.id
 }
