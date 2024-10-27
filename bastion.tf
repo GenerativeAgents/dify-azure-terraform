@@ -58,6 +58,7 @@ resource "azurerm_linux_virtual_machine" "postgre_backup_vm" {
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
     apt-get update
     apt-get install -y postgresql-client-16
+    wget --no-check-certificate https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem
     EOF
   )
 }
