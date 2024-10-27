@@ -88,19 +88,16 @@ variable "is_aca_enabled" {
 
 variable "dify-api-image" {
   type = string
-  # default = "langgenius/dify-api:0.6.11"
   default = "langgenius/dify-api:0.7.1"
 }
 
 variable "dify-sandbox-image" {
   type = string
-  # default = "langgenius/dify-sandbox:0.2.1"
   default = "langgenius/dify-sandbox:0.2.6"
 }
 
 variable "dify-web-image" {
   type = string
-  # default = "langgenius/dify-web:0.6.11"
   default = "langgenius/dify-web:0.7.1"
 }
 
