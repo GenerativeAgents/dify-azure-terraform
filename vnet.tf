@@ -63,5 +63,5 @@ resource "azurerm_subnet" "postgressubnet_public" {
   name                 = "PostgresSubnetPublic"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["${var.ip-prefix}.3.0/24"]  # VNetの範囲内で未使用のアドレス空間を指定
+  address_prefixes     = ["${var.ip-prefix}.3.0/24"]
 }
