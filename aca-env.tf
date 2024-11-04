@@ -48,14 +48,6 @@ resource "azurerm_container_app_environment_storage" "nginxfileshare" {
   access_mode                  = "ReadWrite"
 }
 
-resource "azurerm_container_app_environment_certificate" "difycerts" {
-  count                        = var.isProvidedCert ? 1 : 0
-  name                         = "difycerts"
-  container_app_environment_id = azurerm_container_app_environment.dify-aca-env.id
-  certificate_blob_base64 = filebase64(var.aca-cert-path)
-  certificate_password = random_password.cert_password.result
-}
-
 resource "azurerm_container_app" "nginx" {
   name                         = "nginx"
   container_app_environment_id = azurerm_container_app_environment.dify-aca-env.id
@@ -95,14 +87,6 @@ resource "azurerm_container_app" "nginx" {
     }
     transport = "auto"
 
-    dynamic "custom_domain" {
-      for_each = var.isProvidedCert ? [1] : []
-      content {
-        name           = var.aca-dify-customer-domain
-        certificate_id = azurerm_container_app_environment_certificate.difycerts[0].id
-      }
-    }
-
     dynamic "ip_security_restriction" {
       for_each = var.web_ip_security_restrictions
       content {
@@ -114,6 +98,17 @@ resource "azurerm_container_app" "nginx" {
     }
   }
 }
+
+resource "azurerm_container_app_custom_domain" "nginx_domain" {
+  name                    = var.aca-dify-customer-domain
+  container_app_id        = azurerm_container_app.nginx.id
+  certificate_binding_type = "SniEnabled"
+
+  depends_on = [
+    azurerm_container_app.nginx,
+  ]
+}
+
 
 resource "azurerm_container_app_environment_storage" "ssrfproxyfileshare" {
   name                         = "ssrfproxyfileshare"

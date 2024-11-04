@@ -73,7 +73,7 @@ variable "aca-cert-path" {
 
 variable "aca-dify-customer-domain" {
   type = string
-  default = "dify.nikadwang.com"
+  default = "dify-app-prod.generative-agents.co.jp"
 }
 
 variable "aca-app-min-count" {
