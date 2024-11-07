@@ -102,7 +102,13 @@ resource "azurerm_container_app" "nginx" {
 resource "azurerm_container_app_custom_domain" "nginx_domain" {
   name                    = var.aca-dify-customer-domain
   container_app_id        = azurerm_container_app.nginx.id
-  certificate_binding_type = "SniEnabled"
+
+  # 証明書のバインディングは除外
+  lifecycle {
+    ignore_changes = [
+      container_app_environment_certificate_id
+    ]
+  }
 
   depends_on = [
     azurerm_container_app.nginx,
