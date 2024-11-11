@@ -21,6 +21,82 @@ resource "azurerm_log_analytics_workspace" "aca-loga" {
   retention_in_days   = 30
 }
 
+resource "azurerm_application_insights" "monitoring" {
+  name                = "ai-${var.aca-env}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  application_type    = "web"
+  workspace_id        = azurerm_log_analytics_workspace.aca-loga.id
+}
+
+resource "azurerm_monitor_action_group" "slack" {
+  name                = "ag-${var.aca-env}-slack"
+  resource_group_name = azurerm_resource_group.rg.name
+  short_name          = "slack"
+
+  logic_app_receiver {
+    name                    = "slack"
+    resource_id            = azurerm_logic_app_workflow.slack_notification.id
+    callback_url           = azurerm_logic_app_trigger_http_request.slack.callback_url
+    use_common_alert_schema = true
+  }
+}
+
+resource "azurerm_monitor_metric_alert" "cpu_alert" {
+  name                = "alert-${var.aca-env}-cpu"
+  resource_group_name = azurerm_resource_group.rg.name
+  scopes              = [azurerm_container_app.api.id, azurerm_container_app.worker.id, azurerm_container_app.sandbox.id, azurerm_container_app.ssrfproxy.id, azurerm_container_app.nginx.id, azurerm_container_app.web.id]
+  description         = "CPU使用率が80%を超過"
+
+  criteria {
+    metric_namespace = "Microsoft.App/containerApps"
+    metric_name      = "UsageNanoCores"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = 80
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.slack.id
+  }
+}
+
+resource "azurerm_monitor_metric_alert" "memory_alert" {
+  name                = "alert-${var.aca-env}-memory"
+  resource_group_name = azurerm_resource_group.rg.name
+  scopes              = [azurerm_container_app.api.id, azurerm_container_app.worker.id, azurerm_container_app.sandbox.id, azurerm_container_app.ssrfproxy.id, azurerm_container_app.nginx.id, azurerm_container_app.web.id]
+  description         = "メモリ使用率が80%を超過"
+
+  criteria {
+    metric_namespace = "Microsoft.App/containerApps"
+    metric_name      = "WorkingSetBytes"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = 80
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.slack.id
+  }
+}
+
+resource "azurerm_monitor_activity_log_alert" "resource_health" {
+  name                = "alert-${var.aca-env}-health"
+  resource_group_name = azurerm_resource_group.rg.name
+  scopes              = [azurerm_container_app.api.id, azurerm_container_app.worker.id, azurerm_container_app.sandbox.id, azurerm_container_app.ssrfproxy.id, azurerm_container_app.nginx.id, azurerm_container_app.web.id]
+  description         = "リソースの状態変化を監視"
+
+  criteria {
+    category = "Administrative"
+    level    = "Critical"
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.slack.id
+  }
+}
+
+
 resource "azurerm_container_app_environment" "dify-aca-env" {
   name                       = var.aca-env
   location                   = azurerm_resource_group.rg.location
@@ -106,7 +182,9 @@ resource "azurerm_container_app_custom_domain" "nginx_domain" {
   # 証明書のバインディングは除外
   lifecycle {
     ignore_changes = [
-      container_app_environment_certificate_id
+      container_app_environment_certificate_id,
+      certificate_binding_type,
+      id
     ]
   }
 

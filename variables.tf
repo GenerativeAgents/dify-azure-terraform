@@ -88,7 +88,7 @@ variable "is_aca_enabled" {
 
 variable "dify-api-image" {
   type = string
-  default = "langgenius/dify-api:0.7.1"
+  default = "langgenius/dify-api:0.11.0"
 }
 
 variable "dify-sandbox-image" {
@@ -98,7 +98,7 @@ variable "dify-sandbox-image" {
 
 variable "dify-web-image" {
   type = string
-  default = "langgenius/dify-web:0.7.1"
+  default = "langgenius/dify-api:0.11.0"
 }
 
 variable "nginx-cpu-size" {
