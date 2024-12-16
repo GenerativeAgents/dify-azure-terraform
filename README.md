@@ -39,6 +39,20 @@ az login
 sh scripts/create_backend.sh <リソースグループ名> <ストレージアカウント名>
 ```
 
+4. PostgreSQLのダンプ用のストレージアカウント/VMのSSH Keyを作成します。(初回のみ)
+
+```bash
+sh scripts/create_ssh_key.sh <リソースグループ名> <ストレージアカウント名>
+```
+
+2回目以降は上記コマンド実行は不要。代わりにローカルにSSH Keyをダウンロードしておく。
+
+```bash
+sh scripts/download_ssh_key.sh <リソースグループ名> <ストレージアカウント名>
+```
+
+```bash
+
 ### Terraformコマンド
 
 ```
@@ -185,3 +199,7 @@ This document provides detailed descriptions of the variables used in the Terraf
 - **Variable Name**: `dify-web-image`
 - **Type**: `string`
 - **Default Value**: `langgenius/dify-web:0.6.11`
+
+
+## バージョンアップのためのPostgreSQLバックアップ・リストア手順
+[version_up.md](version_up.md)を参照のこと。

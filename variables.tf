@@ -73,7 +73,7 @@ variable "aca-cert-path" {
 
 variable "aca-dify-customer-domain" {
   type = string
-  default = "dify.nikadwang.com"
+  default = "dify-app-prod.generative-agents.co.jp"
 }
 
 variable "aca-app-min-count" {
@@ -88,20 +88,17 @@ variable "is_aca_enabled" {
 
 variable "dify-api-image" {
   type = string
-  # default = "langgenius/dify-api:0.6.11"
-  default = "langgenius/dify-api:0.7.1"
+  default = "langgenius/dify-api:0.11.0"
 }
 
 variable "dify-sandbox-image" {
   type = string
-  # default = "langgenius/dify-sandbox:0.2.1"
   default = "langgenius/dify-sandbox:0.2.6"
 }
 
 variable "dify-web-image" {
   type = string
-  # default = "langgenius/dify-web:0.6.11"
-  default = "langgenius/dify-web:0.7.1"
+  default = "langgenius/dify-api:0.11.0"
 }
 
 variable "nginx-cpu-size" {

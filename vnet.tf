@@ -59,4 +59,9 @@ resource "azurerm_subnet" "postgressubnet" {
 
 }
 
-
+resource "azurerm_subnet" "postgressubnet_public" {
+  name                 = "PostgresSubnetPublic"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["${var.ip-prefix}.3.0/24"]
+}
