@@ -10,7 +10,7 @@ resource "azurerm_cognitive_account" "openai" {
   kind                = "OpenAI"
   sku_name            = "S0"
 
-  custom_subdomain_name = "dify-openai-service"
+  custom_subdomain_name = "dify-openai-service-${var.env}"
 
   network_acls {
     default_action = "Deny"

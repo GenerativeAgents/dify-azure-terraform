@@ -2,7 +2,16 @@ variable "subscription-id" {
   type = string
 }
 
-variable "resource_group" {
+variable "resource_group_prefix" {
+  type = string
+}
+
+variable "company_name" {
+  type = string
+  nullable = true
+}
+
+variable "env" {
   type = string
 }
 
@@ -42,11 +51,6 @@ variable "pgsql-user" {
   default = "user"
 }
 
-variable "pgsql-password" {
-  type = string
-  default = "#QWEASDasdqwe"
-}
-
 variable "aca-env" {
   type = string
   default = "dify-aca-env"
@@ -67,14 +71,9 @@ variable "aca-cert-path" {
   default = "./certs/difycert.pfx"
 }
 
-variable "aca-cert-password" {
-  type = string
-  default = "password"
-}
-
 variable "aca-dify-customer-domain" {
   type = string
-  default = "dify.nikadwang.com"
+  default = "dify-app-prod.generative-agents.co.jp"
 }
 
 variable "aca-app-min-count" {
@@ -89,20 +88,17 @@ variable "is_aca_enabled" {
 
 variable "dify-api-image" {
   type = string
-  # default = "langgenius/dify-api:0.6.11"
-  default = "langgenius/dify-api:0.7.1"
+  default = "langgenius/dify-api:0.11.0"
 }
 
 variable "dify-sandbox-image" {
   type = string
-  # default = "langgenius/dify-sandbox:0.2.1"
   default = "langgenius/dify-sandbox:0.2.6"
 }
 
 variable "dify-web-image" {
   type = string
-  # default = "langgenius/dify-web:0.6.11"
-  default = "langgenius/dify-web:0.7.1"
+  default = "langgenius/dify-api:0.11.0"
 }
 
 variable "nginx-cpu-size" {
